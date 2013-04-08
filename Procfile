@@ -1,1 +1,1 @@
-clock: clockwork clock.rb
+clock: bundle exec clockwork clock.rb
