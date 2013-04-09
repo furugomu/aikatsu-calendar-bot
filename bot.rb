@@ -20,6 +20,10 @@ class Bot
   # 日が変わった時になんかする
   def daily
     refresh()
+    if todays_schedules.count == 0
+      tweet('今日は何もないよ')
+      return
+    end
     todays_schedules.each do |s|
       tweet_schedule(s)
     end
@@ -32,8 +36,9 @@ class Bot
 
   # アイカツカレンダーをもういちど見に行く
   def refresh
-    schedules.drop()
     xs = AikatsuCalendar::Scraper.scrape()
+    return if xs.empty?
+    schedules.drop()
     schedules.insert(xs)
     schedules.ensure_index(date_from: 1)
     schedules.ensure_index(date_until: 1)
@@ -130,7 +135,8 @@ def format_tweet(schedule)
       [greeting, type, schedule['content'], schedule['link']]
   elsif schedule['date_from'] == today
     # 今日から
-    
+  elsif schedule['date_until'] == today
+    # 今日まで
   else
     date = pretty_date(schedule['date_until'])
     '%sまで [%s] %s %s' % [date, type, schedule['content'], schedule['link']]
